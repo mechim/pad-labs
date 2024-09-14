@@ -8,218 +8,160 @@ An application that allows users to rate and discuss music in live forums.
 
 
 ## 2. Service boundaries
-![deployment](https://github.com/user-attachments/assets/87bc4d1c-9888-4b41-b17f-a7826eefc1ab)
-* The CRUD service manages everything to do with users and music reviewing.
-* Service B takes care of the discussion forums
+![deployment drawio](https://github.com/user-attachments/assets/74d33d12-ae81-429c-b282-66bd8437a77d)
+
+* The Review service manages everything to do with users and music reviewing.
+* The Forum service takes care of the discussion forums
 ## 3. Technology Stack and Communication Patterns
-* Service A (Python): Django + MongoDB (a common combination)
-* Service B (Python): Django + MongoDB (a common combination) + Dj Channels (WS) + Redis (Channels storage)
+* The Review Service (Python): Django + MongoDB (a common combination)
+* The Forum Service (Python): Django + MongoDB (a common combination) + Dj Channels (WS) + Redis (Channels storage)
 * API Gateway (JS): Express
 * Inter-service communication: RESTful APIs (CRUD) and gRPC (service discovery)
 ## 4. Data Management
----
+### The Review Microservice: Users and Music Reviews
+This microservice handles user management, authentication, and music reviews (CRUD operations).
 
-### **Service A: User & Music Review Service**
+**Base URL**: `/api/users-reviews`
 
-#### **POST | /api/users/auth/signup**  
-Creates a new account
-
-- **Expects:**
-  ```json
-  {
-    "username": "string",
-    "password": "string"
-  }
-  ```
-
-- **On Success:**  
-  A confirmation message (e.g., `"User created successfully"`)
-
----
-
-#### **POST | /api/users/auth/signin**  
-Logs into an existing account
-
-- **Expects:**
-  ```json
-  {
-    "username": "string",
-    "password": "string"
-  }
-  ```
-
-- **On Success:**
-  ```json
-  {
-    "auth_token": "string"
-  }
-  ```
-
----
-
-#### **GET | /api/users/friends/search?uname=**  
-Searches users by username
-
-- **Expects:**  
-  `auth_token` in the header and parameters in the URL (e.g., `uname=John`)
-
-- **On Success:**
-  ```json
-  [
+#### 1. **User Management**
+- **Register a new user**
+  - **Method**: `POST`
+  - **Endpoint**: `/users/register`
+  - **Description**: Create a new user.
+  - **Request body**:
+    ```json
     {
-      "id": "number",
-      "username": "string"
+      "username": "string",
+      "password": "string",
+      "email": "string"
     }
-  ]
-  ```
+    ```
+  - **Response**: User profile details or error message.
 
----
-
-#### **POST | /api/users/friends/req/:id**  
-Creates a friend request
-
-- **Expects:**  
-  `auth_token` in the header and a **number** `id` (receiver's ID) in the URL.
-
-- **On Success:**  
-  A confirmation message (e.g., `"Friend request sent successfully"`)
-
----
-
-#### **GET | /api/users/friends/get**  
-Gets all existing friend requests
-
-- **Expects:**  
-  `auth_token` in the header
-
-- **On Success:**
-  ```json
-  [
+- **Login user**
+  - **Method**: `POST`
+  - **Endpoint**: `/users/login`
+  - **Description**: Authenticate user and return token.
+  - **Request body**:
+    ```json
     {
-      "id": "number",
-      "username": "string"
+      "username": "string",
+      "password": "string"
     }
-  ]
-  ```
+    ```
+  - **Response**: JWT token or error message.
 
----
+- **Get user profile**
+  - **Method**: `GET`
+  - **Endpoint**: `/users/profile/{userId}`
+  - **Description**: Get details of a specific user.
+  - **Response**: User profile details.
 
-#### **POST | /api/users/friends/add?id=&accepted=**  
-Resolves a friend request
-
-- **Expects:**  
-  `auth_token` in the header and parameters in the URL (e.g., `id=123&accepted=true`)
-
-- **On Success:**  
-  A confirmation message (e.g., `"Friend request resolved"`)
-
----
-
-#### **PATCH | /api/users/ratings/upd?id=&del=**  
-Updates user’s rating
-
-- **Expects:**  
-  Parameters in the URL (e.g., `id=456&del=true`), and authorization credentials (inter-service communication: **B** → **A**).
-
-- **On Success:**  
-  A confirmation message (e.g., `"Rating updated successfully"`)
-
----
-
-### **Service B: Forum & Chat Service**
-
-#### **POST | /api/records/save**  
-Saves a record of moves
-
-- **Expects:**  
-  `auth_token` in the header, and the body:
-  ```json
-  {
-    "moves": ["list", "of", "strings"]
-  }
-  ```
-
-- **On Success:**  
-  A confirmation message (e.g., `"Record saved successfully"`)
-
----
-
-#### **GET | /api/records/get-all**  
-Gets all the records' IDs and datetime data
-
-- **Expects:**  
-  `auth_token` in the header
-
-- **On Success:**
-  ```json
-  [
+#### 2. **Music Reviews**
+- **Post a new review**
+  - **Method**: `POST`
+  - **Endpoint**: `/reviews`
+  - **Description**: Submit a new music review.
+  - **Request body**:
+    ```json
     {
-      "id": "number",
-      "datetime": "string"
+      "userId": "string",
+      "albumId": "string",
+      "rating": "number",
+      "reviewText": "string"
     }
-  ]
-  ```
+    ```
+  - **Response**: Review details or error message.
 
----
+- **Get all reviews for an album**
+  - **Method**: `GET`
+  - **Endpoint**: `/reviews/album/{albumId}`
+  - **Description**: Fetch all reviews for a specific album.
+  - **Response**: List of reviews.
 
-#### **GET | /api/records/get/:id**  
-Gets an actual record by its ID
-
-- **Expects:**  
-  `auth_token` in the header and a **number** `id` (record ID) in the URL.
-
-- **On Success:**
-  ```json
-  {
-    "moves": ["list", "of", "strings"]
-  }
-  ```
-
----
-
-#### **POST | /api/games/create**  
-Creates a new game lobby
-
-- **Expects:**  
-  `auth_token` in the header
-
-- **On Success:**
-  ```json
-  {
-    "lobby_id": "number"
-  }
-  ```
-
----
-
-#### **GET | /api/games/discover**  
-Gets a list of lobbies to join (filtered by rating/friends)
-
-- **Expects:**  
-  `auth_token` in the header
-
-- **On Success:**
-  ```json
-  [
+- **Update a review**
+  - **Method**: `PUT`
+  - **Endpoint**: `/reviews/{reviewId}`
+  - **Description**: Update an existing review.
+  - **Request body**:
+    ```json
     {
-      "lobby_id": "number",
-      "avg_rating": "number",
-      "friends_in": "boolean"
+      "rating": "number",
+      "reviewText": "string"
     }
-  ]
-  ```
+    ```
+  - **Response**: Updated review details.
+
+- **Delete a review**
+  - **Method**: `DELETE`
+  - **Endpoint**: `/reviews/{reviewId}`
+  - **Description**: Delete a specific review.
+  - **Response**: Success or error message.
+
+### The Forums Microservice: WebSocket-Based Forums/Chats/Discussions
+This microservice handles live discussions about music, albums, or genres using WebSockets.
+
+**Base URL**: `/api/forums`
+
+#### 1. **WebSocket Connection for Discussions**
+- **Connect to a discussion room (WebSocket)**
+  - **Method**: `GET`
+  - **Endpoint**: `/connect`
+  - **Description**: Establish a WebSocket connection for real-time discussions. The client should initiate a connection to a specific discussion room (album or genre).
+  - **Query parameters**:
+    - `roomId` (albumId or genreId to identify the room).
+    - `userId` (to identify the user in the room).
+
+  - **Response**: Live WebSocket connection, enabling chat messages to be exchanged.
+
+#### 2. **Send/Receive Messages**
+- **Send message to the discussion room**
+  - **Method**: `SEND` (over WebSocket)
+  - **Endpoint**: WebSocket message
+  - **Payload**:
+    ```json
+    {
+      "userId": "string",
+      "roomId": "string",
+      "message": "string"
+    }
+    ```
+  - **Response**: Acknowledgment of message sent or error.
+
+- **Receive messages from the discussion room**
+  - **Method**: `RECEIVE` (over WebSocket)
+  - **Description**: Receive real-time messages from other participants in the discussion room.
+
+#### 3. **Manage Discussion Rooms**
+- **Create a new discussion room**
+  - **Method**: `POST`
+  - **Endpoint**: `/rooms`
+  - **Description**: Create a new room for an album or genre discussion.
+  - **Request body**:
+    ```json
+    {
+      "roomType": "album/genre",
+      "albumId": "string",
+      "genreId": "string"
+    }
+    ```
+  - **Response**: Room details.
+
+- **Get active rooms**
+  - **Method**: `GET`
+  - **Endpoint**: `/rooms`
+  - **Description**: Fetch all active discussion rooms.
+  - **Response**: List of active rooms.
+
+- **Close a discussion room**
+  - **Method**: `DELETE`
+  - **Endpoint**: `/rooms/{roomId}`
+  - **Description**: Close a specific discussion room.
+  - **Response**: Success or error message.
 
 ---
 
-#### **Django Channels JSONConsumer | wss://.../api/games/wss/lobby/:id**  
-Lobby WebSocket consumer (removed when empty); receives streams of data to be deserialized and interpreted.
-
-- **Expects:**  
-  WebSocket connection with JSON payloads to manage real-time game interactions.
-
----
-
-This API structure covers the required endpoints for user management, music reviews, social features, and real-time game lobbies, ensuring that all services operate independently yet communicate effectively.
+This structure separates the user and review management from the real-time discussion, which fits well with a microservice architecture focused on separation of concerns.
 ## 5. Deployment and Scaling
 For deployment, containerize the microservices using Docker and orchestrate them with Kubernetes on cloud platforms like AWS or GCP. Each service will have its own database, and secrets/configurations can be managed through environment variables. Managed Kubernetes services enable easy scaling and fault tolerance.
 
