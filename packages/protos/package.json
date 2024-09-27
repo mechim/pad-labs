@@ -1,0 +1,22 @@
+{
+  "name": "protos",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "codegen": "buf generate",
+    "build": "tsup --dts --format=esm $(find node-ts -name '*.ts') --out-dir node"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@bufbuild/buf": "^1.42.0",
+    "nice-grpc-common": "^2.0.2",
+    "ts-proto": "^2.2.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.1.0"
+  }
+}
