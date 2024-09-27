@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package vynild.review.services;
+
+service UserService {
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+  rpc LoginUser (CreateUserRequest) returns (CreateUserResponse);
+  rpc GetUser (GetUserRequest) returns (GetUserResponse);
+}
+
+
+message CreateUserRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message CreateUserResponse {
+  string access_token = 1;
+}
+
+message GetUserRequest {
+  string username = 1;
+}
+
+message GetUserResponse {
+  string username = 1;
+  string email = 2;
+}
+
+message LoginUserRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginUserResponse {
+  string access_token = 1;
+}

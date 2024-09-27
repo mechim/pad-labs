@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package vynild.review.models;
+
+import "vynild/review/models/user.proto";
+
+message Review {
+  string id = 1;
+  vynild.review.models.UserData user = 2;
+  double rating = 3;
+  string review_text = 4;
+}

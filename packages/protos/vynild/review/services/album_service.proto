@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package vynild.review.services;
+
+import "vynild/review/models/album.proto";
+
+service AlbumService {
+  rpc GetAlbum (GetAlbumRequest) returns (GetAlbumResponse);
+  rpc GetAlbums (GetAlbumsRequest) returns (GetAlbumsResponse);
+}
+
+message GetAlbumRequest {
+  string album_id = 1;
+}
+
+message GetAlbumResponse {
+  vynild.review.models.AlbumData album = 1;
+}
+
+message GetAlbumsRequest {
+  string artist_id = 1;
+}
+
+message GetAlbumsResponse {
+  repeated vynild.review.models.AlbumData albums = 1;
+}

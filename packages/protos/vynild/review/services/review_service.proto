@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package vynild.review.services;
+
+import "vynild/review/models/review.proto";
+
+service ReviewService {
+  rpc GetReview (GetReviewRequest) returns (GetReviewResponse);
+  rpc GetReviews (GetReviewsRequest) returns (GetReviewsResponse);
+  rpc CreateReview (CreateReviewRequest) returns (CreateReviewResponse);
+}
+
+message GetReviewRequest {
+  string review_id = 1;
+}
+
+message GetReviewResponse {
+  vynild.review.models.Review review = 1;
+}
+
+message GetReviewsRequest {
+  string album_id = 1;
+}
+
+message GetReviewsResponse {
+  repeated vynild.review.models.Review reviews = 1;
+}
+
+message CreateReviewRequest {
+  string user_id = 1;
+  double rating = 2;
+  string review_text = 3;
+  string album_id = 4;
+}
+
+message CreateReviewResponse {
+  string review_id = 1;
+}
