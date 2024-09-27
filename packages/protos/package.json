@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "codegen": "buf generate",
-    "build": "tsup --dts --format=esm $(find node-ts -name '*.ts') --out-dir node"
+    "codegen": "buf generate && buf build -o node/descriptors.binpb",
+    "build": "tsup --dts --format=esm $(find node-ts -name '*.ts') --out-dir node && ./scripts/generate_descriptors.sh"
   },
   "keywords": [],
   "author": "",

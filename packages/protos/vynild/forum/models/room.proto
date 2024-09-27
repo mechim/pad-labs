@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package vynild.forum.models;
+
+message CreateRoom {
+  oneof room_target {
+    string album_id = 1;
+    string genre = 2;
+  }
+}
+
+message RoomData {
+  string id = 1;
+  oneof room_target {
+    string album_id = 2;
+    string genre = 3;
+  }
+}
