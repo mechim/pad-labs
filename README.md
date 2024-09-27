@@ -1,30 +1,71 @@
 # Microservice-based Music Rating and Discussion Application
+
 An application that allows users to rate and discuss music in live forums.
+
+## Local Development
+
+### Pre-requisites
+
+- Ideally use a Unix-like OS (WSL on Windows is also fine). Some scripts may not work on Windows, add `wsl` before the command in that case.
+- Have Docker installed on your machine.
+- Have Node.js (preferably with nvm) and [install pnpm](https://pnpm.io/installation). (For microservices)
+- Have Python x.x and ... installed. (For gateway & service discovery) <-- WIP
+
+### Setup
+
+- Run the development services using Docker Compose:
+
+  ```bash
+  docker compose up -d
+  ```
+
+- Transpile the proto files to TS and Python:
+
+  ```bash
+  pnpm build-protos
+  ```
+
+- Run each service on your machine:
+
+  ```bash
+  pnpm dev:gateway
+  pnpm dev:review
+  pnpm dev:forum
+  ```
+
 ## 1. Application Sustainability Assestment
+
 1. Media rating and reviewing platforms tend to experience very high levels of user traffic especially in the times of new popular releases. Some functionality of these applications can be separated and improved on their own. This approach allows for better scaling and improvement in the long run.
 2. Microservices give the ability to deploy parts of an application separately which allows for both a smoother developing and user experience.
-* websites like Letterboxd and Goodreads which serve as inspiration for this project use microservices to separate their functionality (user auth, review, rating, notifications, list making etc.)
 
-
+- websites like Letterboxd and Goodreads which serve as inspiration for this project use microservices to separate their functionality (user auth, review, rating, notifications, list making etc.)
 
 ## 2. Service boundaries
+
 ![deployment drawio](https://github.com/user-attachments/assets/74d33d12-ae81-429c-b282-66bd8437a77d)
 
-* The Review service manages everything to do with users and music reviewing.
-* The Forum service takes care of the discussion forums
+- The Review service manages everything to do with users and music reviewing.
+- The Forum service takes care of the discussion forums
+
 ## 3. Technology Stack and Communication Patterns
-* The Review Service (Python): Django + MongoDB (a common combination)
-* The Forum Service (Python): Django + MongoDB (a common combination) + Dj Channels (WS) + Redis (Channels storage)
-* API Gateway (JS): Express
-* Inter-service communication: RESTful APIs (CRUD) and gRPC (service discovery)
+
+- The Review Service (Python): Django + MongoDB (a common combination)
+- The Forum Service (Python): Django + MongoDB (a common combination) + Dj Channels (WS) + Redis (Channels storage)
+- API Gateway (JS): Express
+- Inter-service communication: RESTful APIs (CRUD) and gRPC (service discovery)
+
 ## 4. Data Management
+
 ### The Review Microservice: Users and Music Reviews
+
 This microservice handles user management, authentication, and music reviews (CRUD operations).
 
 **Base URL**: `/api/users-reviews`
 
 #### 1. **User Management**
+
 - **Register a new user**
+
   - **Method**: `POST`
   - **Endpoint**: `/users/register`
   - **Description**: Create a new user.
@@ -39,6 +80,7 @@ This microservice handles user management, authentication, and music reviews (CR
   - **Response**: User profile details or error message.
 
 - **Login user**
+
   - **Method**: `POST`
   - **Endpoint**: `/users/login`
   - **Description**: Authenticate user and return token.
@@ -58,7 +100,9 @@ This microservice handles user management, authentication, and music reviews (CR
   - **Response**: User profile details.
 
 #### 2. **Music Reviews**
+
 - **Post a new review**
+
   - **Method**: `POST`
   - **Endpoint**: `/reviews`
   - **Description**: Submit a new music review.
@@ -74,12 +118,14 @@ This microservice handles user management, authentication, and music reviews (CR
   - **Response**: Review details or error message.
 
 - **Get all reviews for an album**
+
   - **Method**: `GET`
   - **Endpoint**: `/reviews/album/{albumId}`
   - **Description**: Fetch all reviews for a specific album.
   - **Response**: List of reviews.
 
 - **Update a review**
+
   - **Method**: `PUT`
   - **Endpoint**: `/reviews/{reviewId}`
   - **Description**: Update an existing review.
@@ -99,23 +145,29 @@ This microservice handles user management, authentication, and music reviews (CR
   - **Response**: Success or error message.
 
 ### The Forums Microservice: WebSocket-Based Forums/Chats/Discussions
+
 This microservice handles live discussions about music, albums, or genres using WebSockets.
 
 **Base URL**: `/api/forums`
 
 #### 1. **WebSocket Connection for Discussions**
+
 - **Connect to a discussion room (WebSocket)**
+
   - **Method**: `GET`
   - **Endpoint**: `/connect`
   - **Description**: Establish a WebSocket connection for real-time discussions. The client should initiate a connection to a specific discussion room (album or genre).
   - **Query parameters**:
+
     - `roomId` (albumId or genreId to identify the room).
     - `userId` (to identify the user in the room).
 
   - **Response**: Live WebSocket connection, enabling chat messages to be exchanged.
 
 #### 2. **Send/Receive Messages**
+
 - **Send message to the discussion room**
+
   - **Method**: `SEND` (over WebSocket)
   - **Endpoint**: WebSocket message
   - **Payload**:
@@ -133,7 +185,9 @@ This microservice handles live discussions about music, albums, or genres using 
   - **Description**: Receive real-time messages from other participants in the discussion room.
 
 #### 3. **Manage Discussion Rooms**
+
 - **Create a new discussion room**
+
   - **Method**: `POST`
   - **Endpoint**: `/rooms`
   - **Description**: Create a new room for an album or genre discussion.
@@ -148,6 +202,7 @@ This microservice handles live discussions about music, albums, or genres using 
   - **Response**: Room details.
 
 - **Get active rooms**
+
   - **Method**: `GET`
   - **Endpoint**: `/rooms`
   - **Description**: Fetch all active discussion rooms.
@@ -162,7 +217,9 @@ This microservice handles live discussions about music, albums, or genres using 
 ---
 
 This structure separates the user and review management from the real-time discussion, which fits well with a microservice architecture focused on separation of concerns.
+
 ## 5. Deployment and Scaling
+
 For deployment, containerize the microservices using Docker and orchestrate them with Kubernetes on cloud platforms like AWS or GCP. Each service will have its own database, and secrets/configurations can be managed through environment variables. Managed Kubernetes services enable easy scaling and fault tolerance.
 
 For scaling, use Redis for caching and improve performance. Auto-scaling policies in Kubernetes can adjust based on traffic or resource usage

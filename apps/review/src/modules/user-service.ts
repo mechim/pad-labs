@@ -1,4 +1,4 @@
-import { UserServiceImplementation } from "protos/node/services/user_service";
+import { UserServiceImplementation } from "protos/node/review/services/user_service";
 
 export const userServiceImpl: UserServiceImplementation = {
   async createUser(request) {
