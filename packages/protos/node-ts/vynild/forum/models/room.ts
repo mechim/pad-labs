@@ -9,31 +9,36 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "vynild.forum.models";
 
-export interface Room {
-  roomType?: { $case: "albumId"; value: string } | { $case: "genre"; value: string } | undefined;
+export interface CreateRoom {
+  roomTarget?: { $case: "albumId"; value: string } | { $case: "genre"; value: string } | undefined;
 }
 
-function createBaseRoom(): Room {
-  return { roomType: undefined };
+export interface RoomData {
+  id: string;
+  roomTarget?: { $case: "albumId"; value: string } | { $case: "genre"; value: string } | undefined;
 }
 
-export const Room: MessageFns<Room> = {
-  encode(message: Room, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    switch (message.roomType?.$case) {
+function createBaseCreateRoom(): CreateRoom {
+  return { roomTarget: undefined };
+}
+
+export const CreateRoom: MessageFns<CreateRoom> = {
+  encode(message: CreateRoom, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    switch (message.roomTarget?.$case) {
       case "albumId":
-        writer.uint32(10).string(message.roomType.value);
+        writer.uint32(10).string(message.roomTarget.value);
         break;
       case "genre":
-        writer.uint32(18).string(message.roomType.value);
+        writer.uint32(18).string(message.roomTarget.value);
         break;
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Room {
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateRoom {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseRoom();
+    const message = createBaseCreateRoom();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -42,14 +47,14 @@ export const Room: MessageFns<Room> = {
             break;
           }
 
-          message.roomType = { $case: "albumId", value: reader.string() };
+          message.roomTarget = { $case: "albumId", value: reader.string() };
           continue;
         case 2:
           if (tag !== 18) {
             break;
           }
 
-          message.roomType = { $case: "genre", value: reader.string() };
+          message.roomTarget = { $case: "genre", value: reader.string() };
           continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
@@ -60,9 +65,9 @@ export const Room: MessageFns<Room> = {
     return message;
   },
 
-  fromJSON(object: any): Room {
+  fromJSON(object: any): CreateRoom {
     return {
-      roomType: isSet(object.albumId)
+      roomTarget: isSet(object.albumId)
         ? { $case: "albumId", value: globalThis.String(object.albumId) }
         : isSet(object.genre)
         ? { $case: "genre", value: globalThis.String(object.genre) }
@@ -70,29 +75,141 @@ export const Room: MessageFns<Room> = {
     };
   },
 
-  toJSON(message: Room): unknown {
+  toJSON(message: CreateRoom): unknown {
     const obj: any = {};
-    if (message.roomType?.$case === "albumId") {
-      obj.albumId = message.roomType.value;
+    if (message.roomTarget?.$case === "albumId") {
+      obj.albumId = message.roomTarget.value;
     }
-    if (message.roomType?.$case === "genre") {
-      obj.genre = message.roomType.value;
+    if (message.roomTarget?.$case === "genre") {
+      obj.genre = message.roomTarget.value;
     }
     return obj;
   },
 
-  create(base?: DeepPartial<Room>): Room {
-    return Room.fromPartial(base ?? {});
+  create(base?: DeepPartial<CreateRoom>): CreateRoom {
+    return CreateRoom.fromPartial(base ?? {});
   },
-  fromPartial(object: DeepPartial<Room>): Room {
-    const message = createBaseRoom();
+  fromPartial(object: DeepPartial<CreateRoom>): CreateRoom {
+    const message = createBaseCreateRoom();
     if (
-      object.roomType?.$case === "albumId" && object.roomType?.value !== undefined && object.roomType?.value !== null
+      object.roomTarget?.$case === "albumId" &&
+      object.roomTarget?.value !== undefined &&
+      object.roomTarget?.value !== null
     ) {
-      message.roomType = { $case: "albumId", value: object.roomType.value };
+      message.roomTarget = { $case: "albumId", value: object.roomTarget.value };
     }
-    if (object.roomType?.$case === "genre" && object.roomType?.value !== undefined && object.roomType?.value !== null) {
-      message.roomType = { $case: "genre", value: object.roomType.value };
+    if (
+      object.roomTarget?.$case === "genre" &&
+      object.roomTarget?.value !== undefined &&
+      object.roomTarget?.value !== null
+    ) {
+      message.roomTarget = { $case: "genre", value: object.roomTarget.value };
+    }
+    return message;
+  },
+};
+
+function createBaseRoomData(): RoomData {
+  return { id: "", roomTarget: undefined };
+}
+
+export const RoomData: MessageFns<RoomData> = {
+  encode(message: RoomData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    switch (message.roomTarget?.$case) {
+      case "albumId":
+        writer.uint32(18).string(message.roomTarget.value);
+        break;
+      case "genre":
+        writer.uint32(26).string(message.roomTarget.value);
+        break;
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RoomData {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRoomData();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        case 2:
+          if (tag !== 18) {
+            break;
+          }
+
+          message.roomTarget = { $case: "albumId", value: reader.string() };
+          continue;
+        case 3:
+          if (tag !== 26) {
+            break;
+          }
+
+          message.roomTarget = { $case: "genre", value: reader.string() };
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RoomData {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      roomTarget: isSet(object.albumId)
+        ? { $case: "albumId", value: globalThis.String(object.albumId) }
+        : isSet(object.genre)
+        ? { $case: "genre", value: globalThis.String(object.genre) }
+        : undefined,
+    };
+  },
+
+  toJSON(message: RoomData): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.roomTarget?.$case === "albumId") {
+      obj.albumId = message.roomTarget.value;
+    }
+    if (message.roomTarget?.$case === "genre") {
+      obj.genre = message.roomTarget.value;
+    }
+    return obj;
+  },
+
+  create(base?: DeepPartial<RoomData>): RoomData {
+    return RoomData.fromPartial(base ?? {});
+  },
+  fromPartial(object: DeepPartial<RoomData>): RoomData {
+    const message = createBaseRoomData();
+    message.id = object.id ?? "";
+    if (
+      object.roomTarget?.$case === "albumId" &&
+      object.roomTarget?.value !== undefined &&
+      object.roomTarget?.value !== null
+    ) {
+      message.roomTarget = { $case: "albumId", value: object.roomTarget.value };
+    }
+    if (
+      object.roomTarget?.$case === "genre" &&
+      object.roomTarget?.value !== undefined &&
+      object.roomTarget?.value !== null
+    ) {
+      message.roomTarget = { $case: "genre", value: object.roomTarget.value };
     }
     return message;
   },

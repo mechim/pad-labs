@@ -4,21 +4,24 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch --env-file=.env src/main.ts"
+    "dev": "tsx watch --env-file=.env src/main.ts | pino-pretty"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "pino-pretty": "^11.2.2",
     "tsup": "^8.3.0",
     "tsx": "^4.19.1",
     "typescript": "^5.6.2"
   },
   "dependencies": {
+    "mongodb": "^6.9.0",
     "nice-grpc": "^2.1.10",
     "nice-grpc-client-middleware-deadline": "^2.0.13",
     "nice-grpc-server-health": "^2.0.12",
     "nice-grpc-server-reflection": "^2.0.12",
+    "pino": "^9.4.0",
     "protos": "workspace:*"
   }
 }

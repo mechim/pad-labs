@@ -7,6 +7,7 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { type CallContext, type CallOptions } from "nice-grpc-common";
+import { UserData } from "../models/user";
 
 export const protobufPackage = "vynild.review.services";
 
@@ -25,8 +26,7 @@ export interface GetUserRequest {
 }
 
 export interface GetUserResponse {
-  username: string;
-  email: string;
+  user: UserData | undefined;
 }
 
 export interface LoginUserRequest {
@@ -242,16 +242,13 @@ export const GetUserRequest: MessageFns<GetUserRequest> = {
 };
 
 function createBaseGetUserResponse(): GetUserResponse {
-  return { username: "", email: "" };
+  return { user: undefined };
 }
 
 export const GetUserResponse: MessageFns<GetUserResponse> = {
   encode(message: GetUserResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.username !== "") {
-      writer.uint32(10).string(message.username);
-    }
-    if (message.email !== "") {
-      writer.uint32(18).string(message.email);
+    if (message.user !== undefined) {
+      UserData.encode(message.user, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -268,14 +265,7 @@ export const GetUserResponse: MessageFns<GetUserResponse> = {
             break;
           }
 
-          message.username = reader.string();
-          continue;
-        case 2:
-          if (tag !== 18) {
-            break;
-          }
-
-          message.email = reader.string();
+          message.user = UserData.decode(reader, reader.uint32());
           continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
@@ -287,19 +277,13 @@ export const GetUserResponse: MessageFns<GetUserResponse> = {
   },
 
   fromJSON(object: any): GetUserResponse {
-    return {
-      username: isSet(object.username) ? globalThis.String(object.username) : "",
-      email: isSet(object.email) ? globalThis.String(object.email) : "",
-    };
+    return { user: isSet(object.user) ? UserData.fromJSON(object.user) : undefined };
   },
 
   toJSON(message: GetUserResponse): unknown {
     const obj: any = {};
-    if (message.username !== "") {
-      obj.username = message.username;
-    }
-    if (message.email !== "") {
-      obj.email = message.email;
+    if (message.user !== undefined) {
+      obj.user = UserData.toJSON(message.user);
     }
     return obj;
   },
@@ -309,8 +293,7 @@ export const GetUserResponse: MessageFns<GetUserResponse> = {
   },
   fromPartial(object: DeepPartial<GetUserResponse>): GetUserResponse {
     const message = createBaseGetUserResponse();
-    message.username = object.username ?? "";
-    message.email = object.email ?? "";
+    message.user = (object.user !== undefined && object.user !== null) ? UserData.fromPartial(object.user) : undefined;
     return message;
   },
 };
@@ -461,9 +444,9 @@ export const UserServiceDefinition = {
     },
     loginUser: {
       name: "LoginUser",
-      requestType: CreateUserRequest,
+      requestType: LoginUserRequest,
       requestStream: false,
-      responseType: CreateUserResponse,
+      responseType: LoginUserResponse,
       responseStream: false,
       options: {},
     },
@@ -483,10 +466,7 @@ export interface UserServiceImplementation<CallContextExt = {}> {
     request: CreateUserRequest,
     context: CallContext & CallContextExt,
   ): Promise<DeepPartial<CreateUserResponse>>;
-  loginUser(
-    request: CreateUserRequest,
-    context: CallContext & CallContextExt,
-  ): Promise<DeepPartial<CreateUserResponse>>;
+  loginUser(request: LoginUserRequest, context: CallContext & CallContextExt): Promise<DeepPartial<LoginUserResponse>>;
   getUser(request: GetUserRequest, context: CallContext & CallContextExt): Promise<DeepPartial<GetUserResponse>>;
 }
 
@@ -495,10 +475,7 @@ export interface UserServiceClient<CallOptionsExt = {}> {
     request: DeepPartial<CreateUserRequest>,
     options?: CallOptions & CallOptionsExt,
   ): Promise<CreateUserResponse>;
-  loginUser(
-    request: DeepPartial<CreateUserRequest>,
-    options?: CallOptions & CallOptionsExt,
-  ): Promise<CreateUserResponse>;
+  loginUser(request: DeepPartial<LoginUserRequest>, options?: CallOptions & CallOptionsExt): Promise<LoginUserResponse>;
   getUser(request: DeepPartial<GetUserRequest>, options?: CallOptions & CallOptionsExt): Promise<GetUserResponse>;
 }
 

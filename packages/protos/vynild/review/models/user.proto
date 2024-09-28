@@ -3,6 +3,7 @@ syntax = "proto3";
 package vynild.review.models;
 
 message UserData {
+  string id = 3;
   string username = 1;
   string email = 2;
 }

@@ -10,16 +10,20 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 export const protobufPackage = "vynild.review.models";
 
 export interface UserData {
+  id: string;
   username: string;
   email: string;
 }
 
 function createBaseUserData(): UserData {
-  return { username: "", email: "" };
+  return { id: "", username: "", email: "" };
 }
 
 export const UserData: MessageFns<UserData> = {
   encode(message: UserData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(26).string(message.id);
+    }
     if (message.username !== "") {
       writer.uint32(10).string(message.username);
     }
@@ -36,6 +40,13 @@ export const UserData: MessageFns<UserData> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 3:
+          if (tag !== 26) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
         case 1:
           if (tag !== 10) {
             break;
@@ -61,6 +72,7 @@ export const UserData: MessageFns<UserData> = {
 
   fromJSON(object: any): UserData {
     return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
       username: isSet(object.username) ? globalThis.String(object.username) : "",
       email: isSet(object.email) ? globalThis.String(object.email) : "",
     };
@@ -68,6 +80,9 @@ export const UserData: MessageFns<UserData> = {
 
   toJSON(message: UserData): unknown {
     const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
     if (message.username !== "") {
       obj.username = message.username;
     }
@@ -82,6 +97,7 @@ export const UserData: MessageFns<UserData> = {
   },
   fromPartial(object: DeepPartial<UserData>): UserData {
     const message = createBaseUserData();
+    message.id = object.id ?? "";
     message.username = object.username ?? "";
     message.email = object.email ?? "";
     return message;

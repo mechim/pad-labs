@@ -2,12 +2,13 @@ syntax = "proto3";
 
 package vynild.review.services;
 
-service UserService {
-  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
-  rpc LoginUser (CreateUserRequest) returns (CreateUserResponse);
-  rpc GetUser (GetUserRequest) returns (GetUserResponse);
-}
+import "vynild/review/models/user.proto";
 
+service UserService {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc LoginUser(LoginUserRequest) returns (LoginUserResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+}
 
 message CreateUserRequest {
   string username = 1;
@@ -24,8 +25,7 @@ message GetUserRequest {
 }
 
 message GetUserResponse {
-  string username = 1;
-  string email = 2;
+  vynild.review.models.UserData user = 1;
 }
 
 message LoginUserRequest {

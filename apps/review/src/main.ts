@@ -4,14 +4,16 @@ import {
   ServerReflectionService,
   ServerReflection,
 } from "nice-grpc-server-reflection";
+import Logger from "pino";
 import * as fs from "node:fs/promises";
 import path from "node:path";
 
 import { UserServiceDefinition } from "protos/node/review/services/user_service";
 import { ReviewServiceDefinition } from "protos/node/review/services/review_service";
 import { AlbumServiceDefinition } from "protos/node/review/services/album_service";
-import { userServiceImpl } from "./modules/user-service";
+import { userServiceImpl } from "./modules/user/user-service";
 
+const logger = Logger();
 const server = createServer();
 
 server.add(UserServiceDefinition, userServiceImpl);
@@ -42,4 +44,4 @@ server.add(
 );
 
 await server.listen("0.0.0.0:5081");
-console.log(`Server listening on port 5081`);
+logger.info("Server started on port 5081");
