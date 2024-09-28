@@ -8,6 +8,8 @@ import * as fs from "node:fs/promises";
 import path from "node:path";
 
 import { UserServiceDefinition } from "protos/node/review/services/user_service";
+import { ReviewServiceDefinition } from "protos/node/review/services/review_service";
+import { AlbumServiceDefinition } from "protos/node/review/services/album_service";
 import { userServiceImpl } from "./modules/user-service";
 
 const server = createServer();
@@ -15,6 +17,9 @@ const server = createServer();
 server.add(UserServiceDefinition, userServiceImpl);
 
 // library services
+
+// Add this definition in Postman to test the health check
+// https://raw.githubusercontent.com/grpc/grpc/refs/heads/master/src/proto/grpc/health/v1/health.proto
 server.add(HealthDefinition, HealthServiceImpl());
 server.add(
   ServerReflectionService,
@@ -28,8 +33,13 @@ server.add(
         "descriptors.binpb",
       ),
     ),
-    [UserServiceDefinition.fullName],
+    [
+      UserServiceDefinition.fullName,
+      ReviewServiceDefinition.fullName,
+      AlbumServiceDefinition.fullName,
+    ],
   ),
 );
 
-await server.listen("0.0.0.0:5001");
+await server.listen("0.0.0.0:5081");
+console.log(`Server listening on port 5081`);
