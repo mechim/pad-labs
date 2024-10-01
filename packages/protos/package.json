@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "codegen": "buf generate && buf build -o node/descriptors.binpb",
-    "build": "tsup --dts --format=esm $(find node-ts -name '*.ts') --out-dir node && ./scripts/generate_descriptors.sh"
+    "build:ts": "tsup --dts --format=esm node-ts/**/*.ts --out-dir node",
+    "build": "pnpm build:ts && ./scripts/generate_descriptors.sh",
+    "build:windows": "pnpm build:ts && powershell ./scripts/generate_descriptors.ps1"
   },
   "keywords": [],
   "author": "",
