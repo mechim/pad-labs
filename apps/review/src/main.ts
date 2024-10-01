@@ -1,22 +1,26 @@
 import { createServer } from "nice-grpc";
 import { HealthDefinition, HealthServiceImpl } from "nice-grpc-server-health";
 import {
-  ServerReflectionService,
   ServerReflection,
+  ServerReflectionService,
 } from "nice-grpc-server-reflection";
-import Logger from "pino";
 import * as fs from "node:fs/promises";
 import path from "node:path";
+import Logger from "pino";
 
-import { UserServiceDefinition } from "protos/node/review/services/user_service";
-import { ReviewServiceDefinition } from "protos/node/review/services/review_service";
 import { AlbumServiceDefinition } from "protos/node/review/services/album_service";
+import { ReviewServiceDefinition } from "protos/node/review/services/review_service";
+import { UserServiceDefinition } from "protos/node/review/services/user_service";
+import { albumServiceImpl } from "./modules/album/album-service";
+import { reviewServiceImpl } from "./modules/review/review-service";
 import { userServiceImpl } from "./modules/user/user-service";
 
 const logger = Logger();
 const server = createServer();
 
 server.add(UserServiceDefinition, userServiceImpl);
+server.add(ReviewServiceDefinition, reviewServiceImpl);
+server.add(AlbumServiceDefinition, albumServiceImpl);
 
 // library services
 
